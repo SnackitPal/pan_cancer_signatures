@@ -255,6 +255,7 @@ def main():
                         'Cohort': cohort_id # Add cohort information
                     })
                     all_maf_data.append(processed_snv_df)
+                    processed_files_count += 1 # Increment for files contributing SNVs
 
             except (IOError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
                 print(f"    Error reading or parsing MAF file {maf_file_path}: {e}. Skipping file.")

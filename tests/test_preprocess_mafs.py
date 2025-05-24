@@ -217,7 +217,7 @@ class TestPreprocessMafs(unittest.TestCase):
             filtered_df[script_essential_cols['Reference_Allele']] != filtered_df[script_essential_cols['Tumor_Seq_Allele2']]
         ]
         
-        self.assertEqual(len(filtered_df), 2) # GENE1 (A>G), GENE2 (C>T), GENE4 (T>C)
+        self.assertEqual(len(filtered_df), 3) # GENE1 (A>G), GENE2 (C>T), GENE4 (T>C)
         self.assertListEqual(filtered_df['Hugo_Symbol'].tolist(), ['GENE1', 'GENE2', 'GENE4'])
 
 
