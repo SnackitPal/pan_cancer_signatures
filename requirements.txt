@@ -1,4 +1,5 @@
 joblib
+matplotlib
 pandas
 pyfaidx
 requests
