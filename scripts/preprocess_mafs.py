@@ -15,7 +15,7 @@ def get_trinucleotide_context(row, ref_genome):
     start_pos = int(row['Start_Position']) # MAF is 1-based
     ref_allele_maf = row['Reference_Allele']
     alt_allele_maf = row['Tumor_Seq_Allele2']
-
+    
     # 1. Chromosome Name Normalization
     if not chrom.startswith('chr'):
         normalized_chrom = 'chr' + chrom
@@ -266,18 +266,7 @@ def main():
             except Exception as e: # Catch any other unexpected errors
                 print(f"    An unexpected error occurred while processing MAF file {maf_file_path}: {e}. Skipping file.")
                 continue
-    
 
-            except (IOError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-                print(f"    Error reading or parsing MAF file {maf_file_path}: {e}. Skipping file.")
-                continue
-            except KeyError as e:
-                print(f"    KeyError (likely missing a critical column that wasn't caught by initial check) in {maf_file_path}: {e}. Skipping file.")
-                continue
-            except Exception as e: # Catch any other unexpected errors
-                print(f"    An unexpected error occurred while processing MAF file {maf_file_path}: {e}. Skipping file.")
-                continue
-    
     if not all_maf_data:
         print("\nNo valid SNV data collected from any MAF files.")
         if processed_files_count == 0:
@@ -368,7 +357,6 @@ def main():
         if not samples_with_no_muts_in_96_contexts.empty:
             print(f"Warning: {len(samples_with_no_muts_in_96_contexts)} samples have zero mutations across the 96 standard contexts.")
             # print(samples_with_no_muts_in_96_contexts.index.tolist())
-
 
         output_file_path = args.output_matrix_file
         output_dir_for_matrix = os.path.dirname(output_file_path)
