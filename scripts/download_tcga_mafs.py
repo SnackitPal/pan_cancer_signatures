@@ -45,12 +45,17 @@ def main():
         page_size = 100 # GDC API max size is often 100 or can be higher, check API docs
 
         while True:
-            # START OF MODIFIED SECTION
             filters = {
                 "op": "and",
                 "content": [
                     {"op": "in", "content": {"field": "cases.project.project_id", "value": [project_id]}},
                     {"op": "in", "content": {"field": "access", "value": ["open"]}},
+                    {"op": "in", "content": {"field": "data_category", "value": ["Simple Nucleotide Variation"]}},
+                    {"op": "in", "content": {"field": "data_type", "value": ["Masked Somatic Mutation"]}},
+                    {"op": "in", "content": {"field": "experimental_strategy", "value": ["WXS"]}},
+                    {"op": "in", "content": {"field": "data_format", "value": ["MAF"]}}
+                ]
+            }
                     # MODIFICATION 1: Change Data Category
                     {"op": "in", "content": {"field": "data_category", "value": ["Simple Nucleotide Variation"]}},
                     {"op": "in", "content": {"field": "data_type", "value": ["Masked Somatic Mutation"]}},
@@ -60,7 +65,7 @@ def main():
                 ]
             }
             # END OF MODIFIED SECTION
-            
+          
             params = {
                 "filters": json.dumps(filters),
                 "fields": "file_id,file_name", # Specify fields to return

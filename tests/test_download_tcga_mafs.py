@@ -67,9 +67,10 @@ class TestDownloadTcgaMafs(unittest.TestCase):
             "content": [
                 {"op": "in", "content": {"field": "cases.project.project_id", "value": [project_id]}},
                 {"op": "in", "content": {"field": "access", "value": ["open"]}},
-                {"op": "in", "content": {"field": "data_category", "value": ["Somatic Mutation"]}},
+                {"op": "in", "content": {"field": "data_category", "value": ["Simple Nucleotide Variation"]}},
                 {"op": "in", "content": {"field": "data_type", "value": ["Masked Somatic Mutation"]}},
-                {"op": "in", "content": {"field": "experimental_strategy", "value": ["WXS"]}}
+                {"op": "in", "content": {"field": "experimental_strategy", "value": ["WXS"]}},
+                {"op": "in", "content": {"field": "data_format", "value": ["MAF"]}}
             ]
         }
         
