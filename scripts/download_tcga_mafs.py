@@ -56,6 +56,16 @@ def main():
                     {"op": "in", "content": {"field": "data_format", "value": ["MAF"]}}
                 ]
             }
+                    # MODIFICATION 1: Change Data Category
+                    {"op": "in", "content": {"field": "data_category", "value": ["Simple Nucleotide Variation"]}},
+                    {"op": "in", "content": {"field": "data_type", "value": ["Masked Somatic Mutation"]}},
+                    {"op": "in", "content": {"field": "experimental_strategy", "value": ["WXS"]}},
+                    # MODIFICATION 2: Add Data Format
+                    {"op": "in", "content": {"field": "data_format", "value": ["MAF"]}}
+                ]
+            }
+            # END OF MODIFIED SECTION
+          
             params = {
                 "filters": json.dumps(filters),
                 "fields": "file_id,file_name", # Specify fields to return
