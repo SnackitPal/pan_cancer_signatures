@@ -7,7 +7,7 @@ import os
 # This assumes signature_plotting_utils.py is in the same directory (scripts/)
 # or accessible via PYTHONPATH.
 try:
-    from signature_plotting_utils import MUTATION_TYPE_COLORS, STANDARD_96_CONTEXTS, get_reordered_contexts
+    from signature_plotting_utils import MUTATION_TYPE_COLORS, STANDARD_96_CONTEXTS, get_reordered_contexts, MUTATION_TYPES
 except ImportError:
     print("Error: Could not import from signature_plotting_utils.py.")
     print("Ensure the file is in the same directory (scripts/) or PYTHONPATH is set correctly.")
@@ -21,6 +21,8 @@ except ImportError:
         STANDARD_96_CONTEXTS = [f"Ctx{i}" for i in range(96)] 
     if 'get_reordered_contexts' not in globals():
         def get_reordered_contexts(cols): return sorted(list(set(cols) & set(STANDARD_96_CONTEXTS)))
+    if 'MUTATION_TYPES' not in globals():
+        MUTATION_TYPES = ['C>A', 'C>G', 'C>T', 'T>A', 'T>C', 'T>G'] # Placeholder
 
 def main():
     parser = argparse.ArgumentParser(description="Visualize mutational signature profiles.")
