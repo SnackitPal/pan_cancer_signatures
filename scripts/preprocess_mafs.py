@@ -15,7 +15,7 @@ def get_trinucleotide_context(row, ref_genome):
     start_pos = int(row['Start_Position']) # MAF is 1-based
     ref_allele_maf = row['Reference_Allele']
     alt_allele_maf = row['Tumor_Seq_Allele2']
-
+    
     # 1. Chromosome Name Normalization
     if not chrom.startswith('chr'):
         normalized_chrom = 'chr' + chrom
@@ -266,20 +266,6 @@ def main():
             except Exception as e: # Catch any other unexpected errors
                 print(f"    An unexpected error occurred while processing MAF file {maf_file_path}: {e}. Skipping file.")
                 continue
-    
-                    all_maf_data.append(processed_snv_df)
-                    processed_files_count +=1 
-
-            except (IOError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-                print(f"    Error reading or parsing MAF file {maf_file_path}: {e}. Skipping file.")
-                continue
-            except KeyError as e:
-                print(f"    KeyError (likely missing a critical column that wasn't caught by initial check) in {maf_file_path}: {e}. Skipping file.")
-                continue
-            except Exception as e: # Catch any other unexpected errors
-                print(f"    An unexpected error occurred while processing MAF file {maf_file_path}: {e}. Skipping file.")
-                continue
-    
     if not all_maf_data:
         print("\nNo valid SNV data collected from any MAF files.")
         if processed_files_count == 0:
@@ -330,15 +316,21 @@ def main():
 
     # 1. Define the 96 Standard Contexts
     bases = ['A', 'C', 'G', 'T']
-    pyrimidine_refs = ['C', 'T']
+    substitution_types = { # pyrimidine_ref -> list of alts
+        'C': ['A', 'G', 'T'],
+        'T': ['A', 'C', 'G']
+    }
     standard_96_contexts = []
-    for ref in pyrimidine_refs:
-        other_bases = [b for b in bases if b != ref and b != COMPLEMENT_MAP[ref]]
-        for alt in other_bases:
+    for ref_pyr, alt_bases in substitution_types.items():
+        for alt_pyr in alt_bases:
             for upstream in bases:
                 for downstream in bases:
-                    standard_96_contexts.append(f"{upstream}[{ref}>{alt}]{downstream}")
+                    standard_96_contexts.append(f"{upstream}[{ref_pyr}>{alt_pyr}]{downstream}")
     standard_96_contexts.sort() # Ensure lexicographical order
+    print(f"DEBUG: Corrected number of generated standard contexts: {len(standard_96_contexts)}") # Should be 96
+
+    print(f"DEBUG: Number of generated standard contexts: {len(standard_96_contexts)}")
+    print(f"DEBUG: First 5 contexts: {standard_96_contexts[:5]}")
 
     # 2. Aggregate Mutation Counts
     if not final_matrix.empty:
@@ -365,19 +357,22 @@ def main():
             print(f"Warning: {len(samples_with_no_muts_in_96_contexts)} samples have zero mutations across the 96 standard contexts.")
             # print(samples_with_no_muts_in_96_contexts.index.tolist())
 
+        output_file_path = args.output_matrix_file
+        output_dir_for_matrix = os.path.dirname(output_file_path)
+        
+        if output_dir_for_matrix and not os.path.exists(output_dir_for_matrix):
+            print(f"Creating output directory for matrix: {output_dir_for_matrix}")
+            os.makedirs(output_dir_for_matrix, exist_ok=True)
 
-        print(f"\nSaving final mutation catalog to: {args.output_matrix_file}")
+        print(f"\nSaving final mutation catalog to: {output_file_path}")
         try:
-            mutation_matrix.to_csv(args.output_matrix_file)
-            print(f"Successfully saved mutation matrix to {args.output_matrix_file}")
+            mutation_matrix.to_csv(output_file_path) # Use output_file_path here
+            print(f"Successfully saved mutation matrix to {output_file_path}")
         except IOError as e:
             print(f"Error: Could not save mutation matrix to {args.output_matrix_file}. Error: {e}")
-            
+                
     else:
         print("\nNo data to aggregate. Skipping matrix generation and saving.")
-        # Create an empty file with header if that's desired behavior for no input
-        # Or, ensure downstream processes can handle missing file.
-        # For now, we just won't write anything.
 
     print("\nScript finished.")
 
