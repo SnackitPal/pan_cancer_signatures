@@ -266,7 +266,6 @@ def main():
             except Exception as e: # Catch any other unexpected errors
                 print(f"    An unexpected error occurred while processing MAF file {maf_file_path}: {e}. Skipping file.")
                 continue
-
     if not all_maf_data:
         print("\nNo valid SNV data collected from any MAF files.")
         if processed_files_count == 0:
