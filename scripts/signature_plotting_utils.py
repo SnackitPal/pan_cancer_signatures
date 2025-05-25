@@ -137,5 +137,3 @@ if __name__ == '__main__':
             match = False
             break
     print(f"\nFirst 16 C>A contexts match example: {match}")
-
-```
