@@ -15,7 +15,6 @@ def get_trinucleotide_context(row, ref_genome):
     start_pos = int(row['Start_Position']) # MAF is 1-based
     ref_allele_maf = row['Reference_Allele']
     alt_allele_maf = row['Tumor_Seq_Allele2']
-    
     # 1. Chromosome Name Normalization
     if not chrom.startswith('chr'):
         normalized_chrom = 'chr' + chrom
