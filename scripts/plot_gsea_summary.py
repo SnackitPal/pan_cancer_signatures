@@ -117,16 +117,25 @@ def generate_plot_and_save(df_to_plot, output_plot_file_path, fdr_threshold_for_
     df_to_plot['Term_Display'] = df_to_plot.apply(
         lambda r: r['Term'] + ' *' if r['FDR q-val'] < fdr_threshold_for_highlighting else r['Term'], axis=1
     )
+    original_fdr_col_name = 'FDR q-val'
+    try:
+        nes_col_tuple_idx = df_to_plot.columns.get_loc('NES') + 1
+        fdr_col_tuple_idx = df_to_plot.columns.get_loc(original_fdr_col_name) + 1
+    except KeyError as e:
+        print(f"Error: A required column ('NES' or '{original_fdr_col_name}') not found in DataFrame for plotting. {e}")
+        print(f"Available columns: {df_to_plot.columns.tolist()}")
+        # Decide how to handle this - maybe return or raise a specific error
+        return 
 
-    plt.style.use('seaborn_v0_8_whitegrid') 
+    plt.style.use('ggplot') 
     fig, ax = plt.subplots(figsize=(12, max(6, len(df_to_plot) * 0.45))) 
     palette = {True: 'firebrick', False: 'cornflowerblue'}
     bar_colors = [palette[nes >= 0] for nes in df_to_plot['NES']]
     sns.barplot(x='NES', y='Term_Display', data=df_to_plot, palette=bar_colors, ax=ax, orient='h')
 
     for i, row_tuple in enumerate(df_to_plot.itertuples()): # Use itertuples for efficiency and direct attribute access
-        nes_val = row_tuple.NES
-        fdr_val = getattr(row_tuple, 'FDR q-val') # Access column with space in name
+        nes_val = row_tuple[nes_col_tuple_idx] 
+        fdr_val = row_tuple[fdr_col_tuple_idx] # Access column with space in name
 
         ha = 'left' if nes_val >= 0 else 'right'
         x_offset_factor = 0.05
