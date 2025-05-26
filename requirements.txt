@@ -6,3 +6,7 @@ pyfaidx
 requests
 scikit-learn
 seaborn
+scipy
+gseapy
+WeasyPrint
+statsmodels
