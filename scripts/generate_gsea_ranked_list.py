@@ -78,7 +78,6 @@ def load_and_filter_data(args):
 
     # Perform the merge using 'Tumor_Sample_Barcode' which should be present in both DataFrames
     merged_df = pd.merge(exposures_df_to_merge, sample_map_df, on='Tumor_Sample_Barcode', how='inner')
-
     print(f"Data merged successfully. Merged DataFrame shape: {merged_df.shape}")
 
     print(f"Filtering for target cohort: {args.target_cohort}")
