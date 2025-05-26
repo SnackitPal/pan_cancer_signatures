@@ -78,7 +78,7 @@ def load_and_filter_data(args):
 
     # Perform the merge using 'Tumor_Sample_Barcode' which should be present in both DataFrames
     merged_df = pd.merge(exposures_df_to_merge, sample_map_df, on='Tumor_Sample_Barcode', how='inner')
-    
+
     print(f"Data merged successfully. Merged DataFrame shape: {merged_df.shape}")
 
     print(f"Filtering for target cohort: {args.target_cohort}")
@@ -242,7 +242,7 @@ def save_ranked_list(results_df, output_file):
         except Exception as e:
             print(f"Error creating output directory {output_dir}: {e}")
             raise ScriptLogicError(f"Failed to create output directory: {e}")
-        
+
     if results_df.empty:
         print("No results to output. The ranked gene list will be empty or reflect no found genes.")
         # Create an empty file if specified, or a file with headers if that's preferred

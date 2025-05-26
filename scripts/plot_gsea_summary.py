@@ -117,6 +117,7 @@ def generate_plot_and_save(df_to_plot, output_plot_file_path, fdr_threshold_for_
     df_to_plot['Term_Display'] = df_to_plot.apply(
         lambda r: r['Term'] + ' *' if r['FDR q-val'] < fdr_threshold_for_highlighting else r['Term'], axis=1
     )
+
     original_fdr_col_name = 'FDR q-val'
     try:
         nes_col_tuple_idx = df_to_plot.columns.get_loc('NES') + 1
