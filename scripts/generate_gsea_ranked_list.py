@@ -35,26 +35,49 @@ def load_and_filter_data(args):
     """
     print(f"Loading exposures file: {args.exposures_file}")
     try:
-        # Assuming TSV based on previous context
-        exposures_df = pd.read_csv(args.exposures_file, sep='\t')
+        exposures_df = pd.read_csv(args.exposures_file, index_col=0) # First column is index
+        # Ensure index is named 'Tumor_Sample_Barcode'
+        if exposures_df.index.name is None or exposures_df.index.name.lower().replace(" ", "_") != 'tumor_sample_barcode':
+             print(f"Info: Exposures DataFrame index name was '{exposures_df.index.name}', renaming to 'Tumor_Sample_Barcode'.")
+             exposures_df.index.name = 'Tumor_Sample_Barcode'
     except FileNotFoundError:
         print(f"Error: Exposures file not found at {args.exposures_file}")
         raise 
+    except Exception as e:
+        print(f"Error loading exposures CSV file {args.exposures_file}: {e}")
+        raise
     
     print(f"Loading sample map file: {args.sample_map_file}")
     try:
-        sample_map_df = pd.read_csv(args.sample_map_file, sep='\t')
+        sample_map_df = pd.read_csv(args.sample_map_file) # Standard CSV
     except FileNotFoundError:
         print(f"Error: Sample map file not found at {args.sample_map_file}")
         raise
+    except Exception as e:
+        print(f"Error loading sample map CSV file {args.sample_map_file}: {e}")
+        raise
 
     print("Merging exposures and sample map data...")
-    if 'sample_id' not in exposures_df.columns or 'SampleID' not in sample_map_df.columns:
-        msg = "Error: Required columns ('sample_id' in exposures or 'SampleID' in sample_map) not found for merging."
+    
+    # Check for 'Tumor_Sample_Barcode' in sample_map_df
+    if 'Tumor_Sample_Barcode' not in sample_map_df.columns:
+        msg = (f"Error: Required column 'Tumor_Sample_Barcode' not found in sample map file: {args.sample_map_file}. "
+               f"Available columns: {sample_map_df.columns.tolist()}")
         print(msg)
         raise ValueError(msg)
 
-    merged_df = pd.merge(exposures_df, sample_map_df, left_on='sample_id', right_on='SampleID', how='inner')
+    # Reset index of exposures_df to use 'Tumor_Sample_Barcode' as a column for merging
+    exposures_df_to_merge = exposures_df.reset_index()
+
+    # Check if 'Tumor_Sample_Barcode' column now exists in exposures_df_to_merge
+    if 'Tumor_Sample_Barcode' not in exposures_df_to_merge.columns:
+        msg = (f"Error: 'Tumor_Sample_Barcode' column not found in exposures data after resetting index. "
+               f"Original index name was '{exposures_df.index.name}'. Available columns: {exposures_df_to_merge.columns.tolist()}")
+        print(msg)
+        raise ValueError(msg)
+
+    # Perform the merge using 'Tumor_Sample_Barcode' which should be present in both DataFrames
+    merged_df = pd.merge(exposures_df_to_merge, sample_map_df, on='Tumor_Sample_Barcode', how='inner')
     print(f"Data merged successfully. Merged DataFrame shape: {merged_df.shape}")
 
     print(f"Filtering for target cohort: {args.target_cohort}")
@@ -210,6 +233,15 @@ def perform_differential_analysis(mutation_matrix_df, high_exposure_sample_ids, 
 
 def save_ranked_list(results_df, output_file):
     """Saves the ranked list to a file."""
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir): # Check if output_dir is not empty string
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"Created output directory: {output_dir}")
+        except Exception as e:
+            print(f"Error creating output directory {output_dir}: {e}")
+            raise ScriptLogicError(f"Failed to create output directory: {e}")
+
     if results_df.empty:
         print("No results to output. The ranked gene list will be empty or reflect no found genes.")
         # Create an empty file if specified, or a file with headers if that's preferred
@@ -250,9 +282,9 @@ def main(args_list=None):
         # Error messages already printed by the functions
         sys.exit(1)
         
-    target_cohort_sample_ids = list(cohort_df['SampleID'].unique())
-    high_exposure_sample_ids = set(high_exposure_group['SampleID'])
-    low_exposure_sample_ids = set(low_exposure_group['SampleID'])
+    target_cohort_sample_ids = list(cohort_df['Tumor_Sample_Barcode'].unique())
+    high_exposure_sample_ids = set(high_exposure_group['Tumor_Sample_Barcode'])
+    low_exposure_sample_ids = set(low_exposure_group['Tumor_Sample_Barcode'])
     
     print(f"Identified {len(target_cohort_sample_ids)} unique sample IDs in the target cohort.")
     print(f"High exposure group contains {len(high_exposure_sample_ids)} samples.")

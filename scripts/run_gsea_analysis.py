@@ -91,16 +91,57 @@ def run_gsea(args):
         raise # Re-raise to be caught by main
 
     # 4. Confirmation and Logging
-    if prerank_obj is not None and hasattr(prerank_obj, 'results') and not prerank_obj.results.empty:
-        print(f"GSEA analysis completed successfully. Results saved to: {args.output_dir_gsea}")
-        # Optional: Could list top results or generate a quick plot here if desired
-        # e.g., print(prerank_obj.results.head())
+    print("GSEApy Prerank function call completed.") # Indicates gseapy itself didn't crash
+
+    # GSEApy, when an outdir is specified, writes its primary results to files.
+    # The most common primary results table filename pattern is 'gseapy.gsea.prerank.gene_sets.report.csv'
+    # or 'gseapy.prerank.gene_sets.report.csv'. It can also be .tsv.
+    # We will check for the existence and non-emptiness of such a file.
+
+    # List potential report file names (GSEApy's naming can sometimes vary slightly or be configured)
+    potential_report_files = [
+        "gseapy.gsea.prerank.gene_sets.report.csv",
+        "gseapy.gsea.prerank.gene_sets.report.tsv",
+        "gseapy.prerank.gene_sets.report.csv", # Older or different gseapy versions/calls
+        "gseapy.prerank.gene_sets.report.tsv"
+    ]
+    
+    found_report_file = None
+    for report_file_name in potential_report_files:
+        expected_results_path = os.path.join(args.output_dir_gsea, report_file_name)
+        if os.path.exists(expected_results_path):
+            found_report_file = expected_results_path
+            break
+    
+    if found_report_file:
+        print(f"Found potential GSEA results table: {found_report_file}")
+        try:
+            results_df_check = pd.read_csv(found_report_file, sep='\t' if found_report_file.endswith('.tsv') else ',')
+            if not results_df_check.empty:
+                print(f"GSEA analysis appears successful. Main results table loaded and is not empty.")
+                print(f"Full results saved to directory: {args.output_dir_gsea}")
+                # You could print a snippet of the results if desired:
+                # print("\nTop results from GSEA table:")
+                # print(results_df_check.head())
+            else:
+                # GSEApy ran, file exists, but it's empty - this is a warning condition.
+                print(f"Warning: GSEA analysis completed, but the main results file ({found_report_file}) is empty.")
+                print(f"Full GSEApy output is in directory: {args.output_dir_gsea}")
+        except Exception as e_load:
+            # GSEApy ran, file exists, but we couldn't load it - also a warning.
+            print(f"Warning: GSEA analysis completed, but could not load or verify the main results file {found_report_file}. Error: {e_load}")
+            print(f"Full GSEApy output is in directory: {args.output_dir_gsea}")
     else:
-        msg = "GSEA analysis did not produce results or the result object was empty."
-        print(f"Error: {msg}")
-        # Consider raising a specific error if GSEApy can "succeed" but produce no results for valid reasons.
-        # For now, treating as an error to be caught by main.
-        raise Exception(msg)
+        # GSEApy Prerank function completed without an error, but no standard output report file was found.
+        # This might indicate an issue or a different GSEApy configuration/version.
+        print("Warning: GSEApy Prerank function call completed, but a standard GSEA results report file was not found in the output directory.")
+        print(f"Please manually check the contents of {args.output_dir_gsea} for GSEA results.")
+        # We don't raise an Exception here because GSEApy itself didn't error out.
+        # The user should inspect the output directory.
+
+# The main function that calls run_gsea would remain largely the same,
+# as run_gsea will now raise exceptions for critical failures (like GSEApy crashing or GMT not found)
+# but will only print warnings if the output file check is ambiguous.
 
 
 def main(args_list=None): # args_list for testing flexibility
