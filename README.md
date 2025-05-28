@@ -15,58 +15,61 @@ The analytical pipeline is scripted primarily in Python, with significant portio
 *   Key findings included identification of Aging, multiple MMRd types, POLE, APOBEC, and HRd-like signatures and their GSEA pathway associations.
 
 ## Repository Structure
-pan_cancer_signatures_jules/
-├── data/ # (Gitignored) Base directory for input data
-│ ├── raw_mafs/ # Raw MAF files downloaded from GDC (organized by cohort)
-│ ├── processed/ # Processed data (mutation catalogs, sample maps, TMB)
-│ └── reference_data/ # Reference files (COSMIC signatures, GMT files)
-│ └── msigdb/ # Gene set files (e.g., Hallmark GMT)
-├── results/ # (Gitignored) Base directory for k=5 analysis results
-│ ├── comparison/ # Cosine similarities (CSV) for k=5
-│ ├── figures/ # Plots for k=5 analysis
-│ │ ├── comparison/ # Heatmap for COSMIC comparison (k=5)
-│ │ ├── exposures/ # Patient exposure plots (k=5)
-│ │ ├── gsea_summary/ # GSEA summary plots (k=5)
-│ │ └── signatures/ # Discovered signature profile plots (k=5)
-│ ├── gsea_analysis/ # Full GSEApy output directories (k=5)
-│ ├── gsea_input/ # Ranked gene lists (.rnk) for GSEA (k=5)
-│ └── models/ # Trained LDA models, profiles, exposures (k=5)
-├── data_k7_UCEC_HNSC_STAD/ # (Gitignored) Base for k=7 UCEC/HNSC/STAD data
-│ ├── raw_mafs/
-│ └── processed/
-├── results_k7_UCEC_HNSC_STAD/ # (Gitignored) Base for k=7 UCEC/HNSC/STAD results
-│ ├── comparison/
-│ ├── figures/
-│ │ ├── comparison/
-│ │ ├── exposures_k7_UHS/
-│ │ ├── gsea_summary/
-│ │ └── signatures/
-│ ├── gsea_analysis/
-│ ├── gsea_input/
-│ └── models/
-├── reports/ # (Gitignored) Generated PDF reports
-│ └── reports_k7_UCEC_HNSC_STAD/ # Specific reports for k=7 run
-├── scripts/ # All Python scripts for the pipeline
-│ ├── download_tcga_mafs.py # Downloads MAF files
-│ ├── preprocess_mafs.py # MAF to mutation catalog
-│ ├── train_lda_model.py # Trains LDA model
-│ ├── signature_plotting_utils.py # Helper for signature plots
-│ ├── visualize_signatures.py # Generates signature profile plots
-│ ├── compare_to_cosmic.py # Compares signatures to COSMIC
-│ ├── generate_sample_cohort_map.py # Creates sample-to-cohort mapping
-│ ├── analyze_patient_exposures.py # Analyzes & plots signature exposures
-│ ├── calculate_tmb.py # Calculates Tumor Mutation Burden
-│ ├── generate_regression_ranked_list.py # Generates ranked gene list for GSEA (regression method)
-│ ├── run_gsea_analysis.py # Runs GSEA using gseapy
-│ ├── plot_gsea_summary.py # Plots GSEA summary results
-│ └── generate_report.py # Generates final PDF report
-├── tests/ # Unit tests for the scripts
-│ ├── test_...py # Individual test files
-├── venv/ # (Gitignored) Python virtual environment
-├── .gitignore # Specifies intentionally untracked files
-├── LICENSE # Project license (e.g., MIT)
-├── main_pipeline.py # Master orchestration script for the pipeline
-└── README.md # This file
+## Repository Structure
+
+-   `pan_cancer_signatures_jules/`
+    -   `data/`                             # (Gitignored) Base directory for input data
+        -   `raw_mafs/`                     # Raw MAF files downloaded from GDC (organized by cohort)
+        -   `processed/`                    # Processed data (mutation catalogs, sample maps, TMB)
+        -   `reference_data/`               # Reference files (COSMIC signatures, GMT files)
+            -   `msigdb/`                   # Gene set files (e.g., Hallmark GMT)
+    -   `results/`                          # (Gitignored) Base directory for k=5 analysis results
+        -   `comparison/`                   # Cosine similarities (CSV) for k=5
+        -   `figures/`                      # Plots for k=5 analysis
+            -   `comparison/`               # Heatmap for COSMIC comparison (k=5)
+            -   `exposures/`                # Patient exposure plots (k=5)
+            -   `gsea_summary/`             # GSEA summary plots (k=5)
+            -   `signatures/`               # Discovered signature profile plots (k=5)
+        -   `gsea_analysis/`                # Full GSEApy output directories (k=5)
+        -   `gsea_input/`                   # Ranked gene lists (.rnk) for GSEA (k=5)
+        -   `models/`                       # Trained LDA models, profiles, exposures (k=5)
+    -   `data_k7_UCEC_HNSC_STAD/`           # (Gitignored) Base for k=7 UCEC/HNSC/STAD data
+        -   `raw_mafs/`
+        -   `processed/`
+    -   `results_k7_UCEC_HNSC_STAD/`        # (Gitignored) Base for k=7 UCEC/HNSC/STAD results
+        -   `comparison/`
+        -   `figures/`
+            -   `comparison/`
+            -   `exposures_k7_UHS/`
+            -   `gsea_summary/`
+            -   `signatures/`
+        -   `gsea_analysis/`
+        -   `gsea_input/`
+        -   `models/`
+    -   `reports/`                          # (Gitignored) Generated PDF reports
+        -   `reports_k7_new_cohorts/`       # Example specific report dir for a k=7 run
+        -   `reports_k7_UCEC_HNSC_STAD/`    # Specific reports for the UCEC/HNSC/STAD k=7 run
+    -   `scripts/`                          # All Python scripts for the pipeline
+        -   `download_tcga_mafs.py`         # Downloads MAF files
+        -   `preprocess_mafs.py`            # MAF to mutation catalog
+        -   `train_lda_model.py`            # Trains LDA model
+        -   `signature_plotting_utils.py`   # Helper for signature plots
+        -   `visualize_signatures.py`       # Generates signature profile plots
+        -   `compare_to_cosmic.py`          # Compares signatures to COSMIC
+        -   `generate_sample_cohort_map.py` # Creates sample-to-cohort mapping
+        -   `analyze_patient_exposures.py`  # Analyzes & plots signature exposures
+        -   `calculate_tmb.py`              # Calculates Tumor Mutation Burden
+        -   `generate_regression_ranked_list.py` # Generates ranked gene list for GSEA (regression method)
+        -   `run_gsea_analysis.py`          # Runs GSEA using gseapy
+        -   `plot_gsea_summary.py`          # Plots GSEA summary results
+        -   `generate_report.py`            # Generates final PDF report
+    -   `tests/`                            # Unit tests for the scripts
+        -   `test_...py`                    # Individual test files
+    -   `venv/`                             # (Gitignored) Python virtual environment
+    -   `.gitignore`                        # Specifies intentionally untracked files
+    -   `LICENSE`                           # Project license (e.g., MIT)
+    -   `main_pipeline.py`                  # Master orchestration script for the pipeline
+    -   `README.md`                         # This file
 
 ## Key Pipeline Stages & Scripts
 
